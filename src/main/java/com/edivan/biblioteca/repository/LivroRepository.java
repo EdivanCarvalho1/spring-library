@@ -12,9 +12,11 @@ import com.edivan.biblioteca.model.Livro;
 @Repository
 public interface LivroRepository extends JpaRepository<Livro, Integer> {
 	
-	@Query("SELECT l FROM Livro l")
+	@Query("SELECT l FROM Livro l ORDER BY l.id")
 	public List<Livro> findAll();
 	
 	@Query("SELECT l FROM Livro l WHERE LOWER(l.titulo) LIKE LOWER(CONCAT('%', :titulo, '%'))")
     List<Livro> searchByTitulo(@Param("titulo") String titulo);
+	
+	
 }
