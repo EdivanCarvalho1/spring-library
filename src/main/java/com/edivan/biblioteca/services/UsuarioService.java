@@ -1,11 +1,14 @@
 package com.edivan.biblioteca.services;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import com.edivan.biblioteca.model.Usuario;
 import com.edivan.biblioteca.repository.UsuarioRepository;
 
@@ -30,8 +33,17 @@ public class UsuarioService implements UserDetailsService {
 	    }
 
 	    public Usuario saveUsuario(Usuario usuario) {
+	        Optional<Usuario> existingUser = usuarioRepository.findByEmail(usuario.getEmail());
+
+	        if (existingUser.isPresent()) {
+	            throw new RuntimeException("Email já está em uso."); 
+	        }
 	        usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
 	        return usuarioRepository.save(usuario);
 	    }
-
+	    
+	    public Optional<Usuario> findByEmail(String email) {
+	    	return usuarioRepository.findByEmail(email);
+	    }
+	    
 }

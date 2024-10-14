@@ -2,12 +2,14 @@ package com.edivan.biblioteca.model;
 
 import java.io.Serializable;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,6 +30,7 @@ public class Bibliotecario implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy= GenerationType.IDENTITY)
+	@Column(name = "id_bibliotecario")
 	private Integer id;
 	
 	private String nome;
@@ -36,8 +39,9 @@ public class Bibliotecario implements Serializable {
 	private String senha;
 	private String sexo;
 	private Float salario;
+	private String role;
 	
-	@ManyToOne
+	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "id_endereco", nullable = false)
 	private Endereco endereco;
 }

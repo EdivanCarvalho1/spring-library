@@ -30,6 +30,7 @@ public class Usuario implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy= GenerationType.IDENTITY)
+	@Column(name = "id_usuario")
 	private Integer id;
 	
 	private String nome;
@@ -37,6 +38,7 @@ public class Usuario implements Serializable {
 	private String email;
 	private String senha;
 	private String sexo;
+	private String role;
 	
 	@Column(name = "num_emprestimo")
 	private int numEmprestimo;

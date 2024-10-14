@@ -5,7 +5,6 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,25 +12,24 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.edivan.biblioteca.model.Usuario;
-import com.edivan.biblioteca.services.UsuarioService;
+import com.edivan.biblioteca.model.Bibliotecario;
+import com.edivan.biblioteca.services.BibliotecarioService;
 import com.edivan.biblioteca.token.JwtUtil;
 
 @RestController
-@RequestMapping("user")
-@CrossOrigin(origins = "http://localhost:3000")
-public class UsuarioController {
-
+@RequestMapping("/admin")
+public class BibliotecarioController {
+	
 	@Autowired
-	private UsuarioService usuarioService;
-
+	BibliotecarioService bibliotecarioService;
+	
 	@Autowired
-	private JwtUtil jwtUtil;
-
+	JwtUtil jwtUtil;
+	
 	@PostMapping("/registrar")
-	public ResponseEntity<?> registrarUsuario(@RequestBody Usuario usuario) {
+	public ResponseEntity<?> registrarUsuario(@RequestBody Bibliotecario bibliotecario) {
 		try {
-			Usuario novoUsuario = usuarioService.saveUsuario(usuario);
+			Bibliotecario novoUsuario = bibliotecarioService.saveBibliotecario(bibliotecario);
 			return ResponseEntity.ok(novoUsuario);
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
@@ -44,11 +42,11 @@ public class UsuarioController {
 			String token = authHeader.substring(7);
 			String email = jwtUtil.extractUsername(token);
 
-			Optional<Usuario> usuarioOptional = usuarioService.findByEmail(email);
+			Optional<Bibliotecario> usuarioOptional = bibliotecarioService.findByEmail(email);
 
 			if (usuarioOptional.isPresent()) {
-				Usuario usuario = usuarioOptional.get();
-				return ResponseEntity.ok(usuario);
+				Bibliotecario bibliotecario = usuarioOptional.get();
+				return ResponseEntity.ok(bibliotecario);
 			} else {
 				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado.");
 			}
