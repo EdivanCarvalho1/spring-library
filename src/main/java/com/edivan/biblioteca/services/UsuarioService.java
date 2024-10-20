@@ -1,8 +1,10 @@
 package com.edivan.biblioteca.services;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -13,6 +15,7 @@ import com.edivan.biblioteca.model.Usuario;
 import com.edivan.biblioteca.repository.UsuarioRepository;
 
 @Service
+@Qualifier("usuarioService")
 public class UsuarioService implements UserDetailsService {
 	
 	 	@Autowired
@@ -21,17 +24,20 @@ public class UsuarioService implements UserDetailsService {
 	 	@Autowired
 	 	private PasswordEncoder passwordEncoder;
 
-	    @Override
+	 	@Override
 	    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-	        Usuario usuario = usuarioRepository.findByEmail(email)
+	        return usuarioRepository.findByEmail(email)
+	            .map(usuario -> org.springframework.security.core.userdetails.User.builder()
+	                .username(usuario.getEmail())
+	                .password(usuario.getSenha())
+	                .roles("USER")
+	                .build())
 	            .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com o email: " + email));
-	        return org.springframework.security.core.userdetails.User.builder()
-	            .username(usuario.getEmail())
-	            .password(usuario.getSenha())
-	            .roles("USER")
-	            .build();
 	    }
-
+	    
+	    public List<Usuario> findAll() {
+	    	return usuarioRepository.findAll();
+	    }
 	    public Usuario saveUsuario(Usuario usuario) {
 	        Optional<Usuario> existingUser = usuarioRepository.findByEmail(usuario.getEmail());
 
@@ -45,5 +51,10 @@ public class UsuarioService implements UserDetailsService {
 	    public Optional<Usuario> findByEmail(String email) {
 	    	return usuarioRepository.findByEmail(email);
 	    }
-	    
+	    public boolean verificarSenha(int idUsuario, String senha) {
+	        Usuario usuario = usuarioRepository.findById(idUsuario)
+	            .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+	        return passwordEncoder.matches(senha, usuario.getSenha());
+	    }
 }

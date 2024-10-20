@@ -1,6 +1,7 @@
 package com.edivan.biblioteca.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -38,5 +39,18 @@ public class LivroController {
 			return ResponseEntity.noContent().build();
 		}
 		return ResponseEntity.ok(livroTitle);
+	}
+	
+	@GetMapping("/available")
+	public ResponseEntity<List<Livro>> findAvailableBooks(){
+		List<Livro> livrosDisponiveis = livroService.findAll()
+				.stream()
+				.filter(livro -> "Disponível".equalsIgnoreCase(livro.getDisponibilidade()))
+				.collect(Collectors.toList());
+		
+		if(livrosDisponiveis.isEmpty()) {
+			return ResponseEntity.noContent().build();
+		}
+		return ResponseEntity.ok(livrosDisponiveis);
 	}
 }

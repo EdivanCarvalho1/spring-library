@@ -1,5 +1,7 @@
 package com.edivan.biblioteca.controller;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,42 +16,53 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.edivan.biblioteca.model.AuthRequest;
 import com.edivan.biblioteca.model.AuthResponse;
+import com.edivan.biblioteca.model.Bibliotecario;
+import com.edivan.biblioteca.model.Usuario;
+import com.edivan.biblioteca.services.BibliotecarioService;
+import com.edivan.biblioteca.services.UsuarioService;
 import com.edivan.biblioteca.token.JwtUtil;
 
 @RestController
-@RequestMapping
+@RequestMapping("/auth")
 @CrossOrigin(origins = "http://localhost:3000")
 public class AuthController {
 	
 	@Autowired
     private AuthenticationManager authenticationManager;
+	
+	@Autowired
+	private BibliotecarioService bibliotecarioService;
+	
+	@Autowired
+	private UsuarioService usuarioService;
 
     @Autowired
     private JwtUtil jwtUtil;
 
-    @PostMapping("user/login")
-    public ResponseEntity<?> loginUser(@RequestBody AuthRequest authRequest) {
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody AuthRequest authRequest) {
         try {
+            // Authenticate the user
             authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getSenha())
             );
-            String token = jwtUtil.generateToken(authRequest.getEmail());
-            return ResponseEntity.ok(new AuthResponse(token));
+
+            String role = getUserRole(authRequest.getEmail());
+
+            String token = jwtUtil.generateToken(authRequest.getEmail(), role);
+            return ResponseEntity.ok(new AuthResponse(token, role));
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
     }
-    @PostMapping("admin/login")
-    public ResponseEntity<?> loginAdmin(@RequestBody AuthRequest authRequest) {
-        try {
-            authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getSenha())
-            );
-            String token = jwtUtil.generateToken(authRequest.getEmail());
-            return ResponseEntity.ok(new AuthResponse(token));
-        } catch (BadCredentialsException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+
+    private String getUserRole(String email) {
+        Optional<Bibliotecario> bibliotecarioOptional = bibliotecarioService.findByEmail(email);
+        if (bibliotecarioOptional.isPresent()) {
+            return bibliotecarioOptional.get().getRole();
         }
+
+        Optional<Usuario> usuarioOptional = usuarioService.findByEmail(email);
+        return usuarioOptional.map(Usuario::getRole).orElse("user");
     }
-    
 }

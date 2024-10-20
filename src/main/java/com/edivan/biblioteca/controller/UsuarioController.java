@@ -1,10 +1,13 @@
 package com.edivan.biblioteca.controller;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,7 +21,7 @@ import com.edivan.biblioteca.services.UsuarioService;
 import com.edivan.biblioteca.token.JwtUtil;
 
 @RestController
-@RequestMapping("user")
+@RequestMapping("/user")
 @CrossOrigin(origins = "http://localhost:3000")
 public class UsuarioController {
 
@@ -27,9 +30,10 @@ public class UsuarioController {
 
 	@Autowired
 	private JwtUtil jwtUtil;
-
+	
+	
 	@PostMapping("/registrar")
-	public ResponseEntity<?> registrarUsuario(@RequestBody Usuario usuario) {
+	public ResponseEntity<?> registerUsuario(@RequestBody Usuario usuario) {
 		try {
 			Usuario novoUsuario = usuarioService.saveUsuario(usuario);
 			return ResponseEntity.ok(novoUsuario);
@@ -39,7 +43,7 @@ public class UsuarioController {
 	}
 
 	@GetMapping("/info")
-	public ResponseEntity getUserInfo(@RequestHeader("Authorization") String authHeader) {
+	public ResponseEntity<?> getUserInfo(@RequestHeader("Authorization") String authHeader) {
 		if (authHeader != null && authHeader.startsWith("Bearer ")) {
 			String token = authHeader.substring(7);
 			String email = jwtUtil.extractUsername(token);
@@ -56,4 +60,11 @@ public class UsuarioController {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Cabeçalho de autorização inválido.");
 		}
 	}
+	 @GetMapping("/list")
+	    public ResponseEntity<?> getAllUsers(@AuthenticationPrincipal UserDetails userDetails) {
+
+	        List<Usuario> users = usuarioService.findAll();
+	        
+	        return ResponseEntity.ok(users);
+	    }
 }
