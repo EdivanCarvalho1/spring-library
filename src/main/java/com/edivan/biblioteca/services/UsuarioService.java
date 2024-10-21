@@ -13,10 +13,11 @@ import org.springframework.stereotype.Service;
 
 import com.edivan.biblioteca.model.Usuario;
 import com.edivan.biblioteca.repository.UsuarioRepository;
+import com.edivan.biblioteca.solid.UsuarioInterface;
 
 @Service
 @Qualifier("usuarioService")
-public class UsuarioService implements UserDetailsService {
+public class UsuarioService implements UserDetailsService, UsuarioInterface {
 	
 	 	@Autowired
 	    private UsuarioRepository usuarioRepository;

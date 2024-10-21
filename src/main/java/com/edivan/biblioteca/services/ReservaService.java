@@ -13,9 +13,10 @@ import com.edivan.biblioteca.repository.BibliotecarioRepository;
 import com.edivan.biblioteca.repository.LivroRepository;
 import com.edivan.biblioteca.repository.ReservaRepository;
 import com.edivan.biblioteca.repository.UsuarioRepository;
+import com.edivan.biblioteca.solid.ReservaInterface;
 
 @Service
-public class ReservaService {
+public class ReservaService implements ReservaInterface {
 	
 	@Autowired
 	ReservaRepository reservaRepository;
