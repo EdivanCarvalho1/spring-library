@@ -1,5 +1,7 @@
 package com.edivan.biblioteca.model;
 
+import java.io.Serializable;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -19,7 +21,10 @@ import lombok.Setter;
 @Entity
 
 @Table(name = "endereco")
-public class Endereco {
+public class Endereco implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id_endereco")
